@@ -45,7 +45,7 @@ The required subdirectories to launch execution are :
 `/db` includes the MasterInput.db databases with ModelsDictonaryArise.db and the Celsius databasis CelsiusV3nov17_dataArise.db  
 `/scripts` list of the scripts called by the main script `main.sh`
 
-On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provide with the container file `datamill.sif` (these files must be located near to the subdirectories data, db, scripts).
+On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provided with the container file `datamill.sif` (these files must be located near to the subdirectories data, db, scripts).
 
 
 ## 3 - Launching the workflow on a HPC computer
