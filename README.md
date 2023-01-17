@@ -1,7 +1,9 @@
 # A workflow for HPC crop simulations (STIC, DSSAT, CELSIUS) using Datamill databasis
 
+Imperial College provides research computing resources for all College researchers, with the standard service for these being free at the point of use.
+You must be registered in order to access the HPC service. The steps for registration are described [here](https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/get-access/) 
 
-## 1 - Prerequists for Windows OS users
+## 1 - Prerequists for Windows OS users to connect to the HPC
 
 For Windows users, the interactions with the Imperial College Computing platform can be made with :
 -  _Putty_ software (https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) to connect to the computing platform
@@ -21,19 +23,19 @@ A VPN must also be set up to secure the connection : https://www.imperial.ac.uk/
 
  `user@login.hpc.ic.ac.uk` (replace 'user' by your username), and the connection type must be set on `SSH`. Then click on `Òpen`and type your password.
 
-A terminal appears when the connection is realized. Please note that no graphic interface is provided so the Linx command lines are used.  
+A terminal appears when the connection is realized. Please note that no graphic interface is provided so the Linux command lines are used.  
 
 
 ### Transfer of files to and from the computing platform
 
  <img src="images/Winscp-connect.png" alt="logo" width="500" align="center" />
 
-Once Winscp software is installed, open it and in the frame `Host name`, type the the domain adress `login.hpc.ic.ac.uk`, and the password and username in the appropriate frames. In file protocol, choose 'scp', then click on 'Login' and a double window appears with on the right the file system of the remote computing platform, and on the left, the local file system :
+Once Winscp software is installed, open it and in the frame `Host name`, type the domain adress `login.hpc.ic.ac.uk`, and the password and username in the appropriate frames. In file protocol, choose 'scp', then click on 'Login' and a double window appears with on the right the file system of the remote computing platform, and on the left, the local file system :
 
 
  <img src="images/WinSCP-transfer.jpeg" alt="logo" width="500" align="center" />
 
-In each of the windows, choose the appropriate directories and to transfer a file from a machine to the other, you juste have to select and drag the file(s).
+In each of the windows, choose the appropriate directories and to transfer a file from a machine to the other, you have to select and drag the file(s).
 
 ## 2 - File system
 
@@ -81,6 +83,7 @@ The container `datamill.sif` calls the main script `main.sh`, triggering the ste
 
 This `main.sh` script triggers the following actions, whose lines can be activated or commented (for example an inactivation can be necessary when the weather data are already loaded because this step is time consuming). All the scripts called in  `main.sh` are located in the subdirectory `scripts`.
 
+Here, we described the main instructions in `main.sh` script that will be managed to address the model simulations.
 
 **3.1. Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to 50 directories 'EXPS' :**
 
