@@ -1,0 +1,18 @@
+.\" Manpage for nuseradd.
+.\" Contact arise@cirad.fr to correct errors or typos.
+.TH man 8 "31 May 2021" "1.0" "datamill man page"
+.SH NAME
+datamill \- run Datamill workflow
+.SH SYNOPSIS
+datamill [options] -c [command]
+.SH DESCRIPTION
+datamill is shell program for running Datamill workflow.
+.SH OPTIONS
+       -c {commande}
+                   {commande} blablabla
+.SH SEE ALSO
+
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+(arise@cirad.fr)

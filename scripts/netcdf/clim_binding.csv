@@ -1,0 +1,9 @@
+rain;precip;TNZ_chirps-v2.0.1981-2019.days_p05_2000-2001_2000.nc
+srad;ssr;TNZ-ERA5_daily_Ssr_mean_1981-2019_2000-2001_2000.nc
+Tdewmax;d2m;TNZ-ERA5-Land_daily_d2m-max_1981-2019_2000-2001_2000.nc
+Tdewmin;d2m;TNZ-ERA5-Land_daily_d2m-min_1981-2019_2000-2001_2000.nc
+Surfpress;sp;TNZ-ERA5_Land_daily_sp_1981-2019_2000-2001_2000.nc
+tmax;t2m;TNZ-ERA5-Land_daily_t2m-max_1981-2019_2000-2001_2000.nc
+tmoy;t2m;TNZ-ERA5-Land_daily_t2m-mean_1981-2019_2000-2001_2000.nc
+tmin;t2m;TNZ-ERA5-Land_daily_t2m-min_1981-2019_2000-2001_2000.nc
+wind;ws2m;TNZ-ERA5_Land_daily_WSPEED2m_1981-2019_2000-2001_2000.nc

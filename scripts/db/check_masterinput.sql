@@ -1,0 +1,11 @@
+select * from Coordinates limit 10;
+select * from Soil limit 10;
+select * from RaclimateD limit 10;
+select * from Coordinate_years limit 10;
+select * from SimUnitList limit 10;
+select count(*) from RaclimateD;
+select count(*) from (select distinct idPoint from RaclimateD);
+select count(*) from SimUnitList;
+select count(*) from (select distinct idPoint from simunitlist);
+select count(*) from Soil;
+select count(*) from (select distinct idPoint from Coordinate_years);
