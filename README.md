@@ -15,7 +15,7 @@ A VPN must also be set up to secure the connection : https://www.imperial.ac.uk/
 
 ### Connection to the computing platform
 
- <img src="Scr2_PuTTY_free-download.webp" alt="logo" width="500" align="center" />
+ <img src="images/Scr2_PuTTY_free-download.webp" alt="logo" width="500" align="center" />
 
  Once Putty software is installed, in the frame 'Host Name (or IP adress)', the domain adress and username must be indicated :
 
@@ -26,12 +26,12 @@ A terminal appears when the connection is realized. Please note that no graphic 
 
 ### Transfer of files to and from the computing platform
 
- <img src="Winscp-connect.png" alt="logo" width="500" align="center" />
+ <img src="images/Winscp-connect.png" alt="logo" width="500" align="center" />
 
 Once Winscp software is installed, open it and in the frame `Host name`, type the the domain adress `login.hpc.ic.ac.uk`, and the password and username in the appropriate frames. In file protocol, choose 'scp', then click on 'Login' and a double window appears with on the right the file system of the remote computing platform, and on the left, the local file system :
 
 
- <img src="WinSCP-transfer.jpeg" alt="logo" width="500" align="center" />
+ <img src="images/WinSCP-transfer.jpeg" alt="logo" width="500" align="center" />
 
 In each of the windows, choose the appropriate directories and to transfer a file from a machine to the other, you juste have to select and drag the file(s).
 
