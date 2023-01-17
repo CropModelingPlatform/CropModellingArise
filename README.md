@@ -37,16 +37,15 @@ In each of the windows, choose the appropriate directories and to transfer a fil
 
 ## 2 - File system
 
-The example directory set by Guillaume Robaldo is located on Imperial college cluster at the adress /rds/general/project/arise/live/CropModellingGR.  
-To setup the necessary environment, the file `datamill.tar.gz` must be uncompressed in a given directory with the command `tar -xvf datamill.tar.gz`.
+The example directory is located on Imperial college cluster at the adress /rds/general/project/arise/live/CropModellingArise.  
 
-The subdirectories are :
+The required subdirectories to launch execution are :
   
 `/data` includes input data of DEM, land, grid, soil ans Stics files such as ficplt1.txt   
 `/db` includes the MasterInput.db databases with ModelsDictonaryArise.db and the Celsius databasis CelsiusV3nov17_dataArise.db  
 `/scripts` list of the scripts called by the main script `main.sh`
 
-On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provide with the container file `datamill.sif` (these files must be located near to the subdirectories bin, data, db, scripts).
+On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provide with the container file `datamill.sif` (these files must be located near to the subdirectories data, db, scripts).
 
 
 ## 3 - Launching the workflow on a HPC computer
@@ -71,86 +70,76 @@ cd $PBS_O_WORKDIR
 
 date
 
-singularity exec --no-home -B $RDS/projects/arise/live/CropModelling:/work -B $RDS/projects/arise/live/CropModellingTmp:$TMPDIR datamill.sif /work/scripts/main.sh
+singularity exec --no-home -B $RDS/projects/arise/live/CropModellingArise:/work -B $RDS/projects/arise/live/CropModellingTmp:$TMPDIR datamill.sif /work/scripts/main.sh
 
 date
 ```
 
 The first lines starting by `#PBS` allow to set up the number of nodes, the number of CPUs per node, the maximum time for the jobs and the job name.
-Then for each job, it triggers a running container `datamill.sif` in the host directory  `$RDS/projects/arise/live/CropModelling` with an local directory name `work` (the directory name in the image). The directory `$RDS/projects/arise/live/CropModellingTmp` is a temporary directory used by Singularity.
+Then for each job, it triggers a running container `datamill.sif` in the host directory  `$RDS/projects/arise/live/CropModellingArise` with an local directory name `work` (the directory name in the image). The directory `$RDS/projects/arise/live/CropModellingTmp` is a temporary directory used by Singularity.
 The container `datamill.sif` calls the main script `main.sh`, triggering the steps of the workflow. 
 
 This `main.sh` script triggers the following actions, whose lines can be activated or commented (for example an inactivation can be necessary when the weather data are already loaded because this step is time consuming). The example below is given with Stics model :
 
-**Copy of the STICS plants related files in all subdirectories :**
 
-```
-conf_stics (){
-  cp "$DATAMILL_WORK/data/$STICS_PLANT" "$1/ficplt1.txt"
-  wait
-}
-export -f conf_stics
-```
-
-**Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to 50 directories 'EXPS' :**
+**3.1. Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to 50 directories 'EXPS' :**
 
 ```
 python3 ${DATAMILL_WORK}/scripts/workflow/init_dirs.py --index $i;
   wait
 ```
 
-**Load data in MasterInput database :**
+**3.2. Load Soil data in MasterInput database :**
 
 ```  
   python3 ${DATAMILL_WORK}/scripts/netcdf/soil_to_db.py --index $i;
   wait 
 ```
 
-**Load meteorological data  in MasterInput - Higly time consuming, activate when necessary :**
+**3.3. Load climate data  in MasterInput - Higly time consuming, activate when necessary :**
 
 ```
 python3 ${DATAMILL_WORK}/scripts/netcdf/meteo_to_db.py --index $i;
 wait
 ```
 
-**Load DEM data in MasterInput :**
+**3.4. Load DEM data in MasterInput :**
 
 ```
   python3 ${DATAMILL_WORK}/scripts/netcdf/dem_to_db.py --index $i;
   wait
 ```
 
-**Create simunitlist with global parameters of the simulation : soil, dates, ITK (ex: fert0, fert160...) :**
+**3.5. Create simunitlist with global parameters of the simulation : soil, dates, ITK (ex: fert0, fert160...) :**
 ```
   python3 ${DATAMILL_WORK}/scripts/workflow/init_simunitlist.py --index $i;
   wait
 ```
 
-**Stics files : 'datamill' is the compilated Visual Basic code, 1 subdirectory/simu is created. The 3 lines after create the name of the subdirectory 'lat-lon-years-ID-ITK' :**
+**3.6. Run Celsius Model :**
 
 ```
-  cd $DIR_EXP
-  datamill convert -m stics \
-    -t ${THREADS} \ 
-    -dbMasterInput ${DB_MI} \
-    -dbModelsDictionary ${DB_MD}
+  /work/scripts/workflow/celsius.sh
   wait
-  ```
 
- **Run of Stics :**
-
- ```
-  cd ${DATAMILL_WORK}/scripts
-  ./stics-main.bash -v -k -i $DIR_EXP/Stics -t ${THREADS}
-  cd ${DATAMILL_WORK}
-  wait
-  ```
-
-**Indications of the variables to output (ex: LAI) :**
 ```
-python3 ${DATAMILL_WORK}/scripts/netcdf/stics_to_netcdf.py --index $i;
-  wait
+
+ **3.7. Run Stics model :**
+
  ```
+  /work/scripts/workflow/stics.sh
+  wait
+
+```
+
+ **3.8. Run Dssat model :**
+
+ ```
+  /work/scripts/workflow/dssat.sh
+  wait
+
+```
+
 
 In order to use this `main.sh` script for DSSAT model, replace words 'Stics' by 'Dssat' and launch the workflow with command line explained below. All the scripts used in  `main.sh` are located in the subdirectory `scripts`.
 
