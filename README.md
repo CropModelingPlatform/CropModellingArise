@@ -146,7 +146,7 @@ wait
 ```
 
 
-### Process to launch the workflow taking into account the limited allocated resources to ARISE
+### Process to launch the workflow
 
 
   **After connecting to the HPC through WINSCP, copy the `CropModellingArise repository` from `/rds/general/project/arise/live` to /rds/general/user/`$user`/ephemeral/`**
