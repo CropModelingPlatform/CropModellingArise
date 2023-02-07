@@ -147,6 +147,7 @@ wait
 
 ### Process to launch the workflow taking into account the limited allocated resources to ARISE
 
+
   **After connecting to the HPC through WINSCP, copy the `CropModellingArise repository` from `/rds/general/project/arise/live` to /rds/general/user/`$user`/ephemeral/`**
   
   **Create into /rds/general/user/`$user`/ephemeral/ the temporary folder `tmp`**
