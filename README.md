@@ -78,13 +78,14 @@ singularity exec --no-home -B /rds/general/user/`$user`/ephemeral/CropModellingA
 date
 ```
 
-The first lines starting by `#PBS` allow to set up the number of nodes, the number of CPUs per node, the maximum time for the jobs and the job name.
-Then for each job, it triggers a running container `datamill.sif` in the host directory  `$RDS/projects/arise/live/CropModellingArise` with an local directory name `work` (the directory name in the image). The directory `$RDS/projects/arise/live/CropModellingTmp` is a temporary directory used by Singularity.
+The first lines starting by `#PBS` allow to set up the size of the array jobs, the number of CPUs per node, the maximum time for the jobs and the job name.
+
+Then for each job, it triggers a running container `datamill.sif` in the host directory  `/rds/general/user/`$user`/ephemeral/CropModellingArise` with an local directory name `work` (the directory name in the image). 
 The container `datamill.sif` calls the main script `main.sh`, triggering the steps of the workflow. 
 
-This `main.sh` script triggers the following actions, whose lines can be activated or commented (for example an inactivation can be necessary when the weather data are already loaded because this step is time consuming). All the scripts called in  `main.sh` are located in the subdirectory `scripts`.
+This `main.sh` script triggers the following actions. All the scripts called in  `main.sh` are located in the subdirectory `scripts`.
 
-Here, we described the main instructions in `main.sh` script that will be managed to address the model simulations.
+Here, we described the main instructions in `main.sh` script that will be execute to address the model simulations.
 
 **3.1. Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to 50 directories 'EXPS' :**
 
@@ -160,7 +161,7 @@ wait
   cd  /rds/general/user/`$user`/ephemeral/CropModellingArise
 ```
 
-  The job `datamill.pbs` can be launched to trigger the workflow with the command : 
+  **The job `datamill.pbs` can be launched to trigger the workflow with the command :**
 
 ```
   qsub datamill.pbs
