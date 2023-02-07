@@ -152,7 +152,7 @@ wait
   
   **Create into /rds/general/user/`$user`/ephemeral/ the temporary folder `tmp`**
 
-  **Open and Change in the `datamill.pbs` and `merge.pbs` files the username in order to have the right path to access `tmp` and `CropModellingArise` :**
+  **Open and Change in the `datamill.pbs` and `merge.pbs` files the username in order to have the right path to access `tmp` and `CropModellingArise`, here `cmidingo`**
 
   **After connecting with Putty, write:**
 
