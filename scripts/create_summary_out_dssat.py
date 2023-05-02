@@ -14,7 +14,7 @@ import argparse
 
 import re
 
-THREADS = 96
+THREADS = 46
 
 
 def get_coord(d):
@@ -66,7 +66,7 @@ def main():
         print('EXP_DIR : ' + EXP_DIR)
         files = glob(os.path.join(EXP_DIR, "Dssat", '*', 'Summary.OUT'))
 
-        res = Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        res = Parallel(n_jobs=-1)(
             delayed(transform)(f) for f in files)
         df = pd.concat(res)
 
@@ -87,7 +87,7 @@ def main():
             o = os.path.join(EXP_DIR, 'dssat' + '_yearly_' + id_ + "_" + str(i) + '.nc')
             dsfin.to_netcdf(o)
         
-        Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        Parallel(n_jobs=-1)(
             delayed(create_netcdf)(f, df) for f in v)
         df.reset_index()
         print("DONE!")

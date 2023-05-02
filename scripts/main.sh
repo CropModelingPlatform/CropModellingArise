@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export THREADS=96
+export THREADS=46
 export INDEXES=($PBS_ARRAY_INDEX)
 
 
@@ -21,33 +21,33 @@ conf_stics (){
 export -f conf_stics
 
 echo "INDEXES : $INDEXES"
-for i in $INDEXES;
-do
-  DIR_EXP=${DATAMILL_WORK}/EXPS/exp_$i
-  DB_MI=$DIR_EXP/MasterInput.db
-  DB_CEL=$DIR_EXP/CelsiusV3nov17_dataArise.db
-  DB_MD=${DATAMILL_WORK}/db/ModelsDictionaryArise.db
-  echo "DIR_EXP : $DIR_EXP"
-  echo "DB_MI : $DB_MI"
-  echo "DB_MD : $DB_MD"
+i=$INDEXES;
+
+DIR_EXP=${DATAMILL_WORK}/EXPS/exp_$i
+DB_MI=$DIR_EXP/MasterInput.db
+DB_CEL=$DIR_EXP/CelsiusV3nov17_dataArise.db
+DB_MD=${DATAMILL_WORK}/db/ModelsDictionaryArise.db
+echo "DIR_EXP : $DIR_EXP"
+echo "DB_MI : $DB_MI"
+echo "DB_MD : $DB_MD"
   
-  #python3 ${DATAMILL_WORK}/scripts/workflow/init_dirs.py --index $i;
-  wait
+python3 ${DATAMILL_WORK}/scripts/workflow/init_dirs.py --index $i;
+wait
 
-  #python3 ${DATAMILL_WORK}/scripts/netcdf/soil_to_db.py --index $i;
-  wait
+python3 ${DATAMILL_WORK}/scripts/netcdf/soil_to_db.py --index $i;
+wait
 
-  #python3 ${DATAMILL_WORK}/scripts/netcdf/meteo_to_db.py --index $i;
-  wait
+python3 ${DATAMILL_WORK}/scripts/netcdf/meteo_to_db.py --index $i;
+wait
 
-  #python3 ${DATAMILL_WORK}/scripts/netcdf/dem_to_db.py --index $i;
-  wait
+python3 ${DATAMILL_WORK}/scripts/netcdf/dem_to_db.py --index $i;
+wait
 
-  python3 ${DATAMILL_WORK}/scripts/workflow/init_simunitlist.py --index $i;
-  wait
-done
+python3 ${DATAMILL_WORK}/scripts/workflow/init_simunitlist.py --index $i;
+wait
 
-#/work/scripts/workflow/celsius.sh
+#
+/work/scripts/workflow/celsius.sh
 wait
 
 # change Crop management and simunitlist
@@ -57,7 +57,7 @@ wait
 #fi
 #wait
 
-#/work/scripts/workflow/stics.sh
+/work/scripts/workflow/stics.sh
 wait
 /work/scripts/workflow/dssat.sh
 wait

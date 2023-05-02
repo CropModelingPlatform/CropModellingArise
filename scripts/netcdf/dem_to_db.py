@@ -38,9 +38,7 @@ def main():
         df = ds_dem.to_dataframe().dropna(axis=0, how="any")
         df = df.reset_index()
         df = df.astype(np.float64).round(4)
-        # df.to_csv(os.path.join(EXP_DIR, 'dem.csv'))
 
-        # DB_MI = os.path.join(work_dir, 'db', 'NEW', 'MasterInput.db')
         with sqlite3.connect(DB_MI) as conn:
             df.to_sql('DemTemp', conn, if_exists='replace', index=False)
 
