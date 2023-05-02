@@ -40,9 +40,8 @@ def main():
         df = ds.to_dataframe().dropna(axis=0, how="any")
         df = df.reset_index()
         df = df.astype(np.float64).round(4)
-        # df.to_csv(os.path.join(EXP_DIR, 'soil.csv'))
+        df = df.round({'OrganicNStock': 3, 'pH': 1, 'OrganicC':2, 'cf':1})
 
-        # DB_MI = os.path.join(work_dir, 'db', 'NEW', 'MasterInput.db')
         with sqlite3.connect(DB_MI) as conn:
             df.to_sql('SoilTemp', conn, if_exists='replace', index=False)
 

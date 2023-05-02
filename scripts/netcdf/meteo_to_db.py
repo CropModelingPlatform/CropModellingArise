@@ -48,17 +48,17 @@ def main():
         ds_mask = ds_mask.reindex({'lat': sorted(ds_mask.lat)})
         df_mask_full = ds_mask.to_dataframe()
         df_mask = df_mask_full.dropna(axis=0, how="any")
-        print(df_mask)
-        # df_mask = df_mask.reset_index()
-        # df_mask = df_mask.astype(np.float64).round(4)
-        # df_mask = df_mask.set_index(['lat', 'lon'])
+    
+        df_mask = df_mask.reset_index()
+        df_mask.columns = ['lat', 'lon', 'mask']
+        df_mask = df_mask.set_index(['lat', 'lon'])
 
-        STEP_N = 50
+        STEP_N = 87
         STEP_IDX = int(i)
         DF_LEN = len(df_mask)
         STEP_SIZE = int(DF_LEN/STEP_N)
         STEP_START = STEP_IDX * STEP_SIZE
-        if STEP_IDX == (STEP_N-1):
+        if STEP_IDX == STEP_N:
             STEP_END = DF_LEN
         else:
             STEP_END = (STEP_IDX + 1) * STEP_SIZE
@@ -66,15 +66,14 @@ def main():
         print("STEP_START : " + str(STEP_START))
         print("STEP_END : " + str(STEP_END))
         print("END - START : " + str(STEP_END - STEP_START))
+       
         df_mask.iloc[0:STEP_START, :] = None
-        # df_mask[0:STEP_START] = None
         df_mask.iloc[STEP_END:, :] = None
-        # df_mask[STEP_END:] = None
+
         df_mask = df_mask.dropna(axis=0, how="any")
         da_mask_full = df_mask_full.where(
             df_mask_full.isin(df_mask)).to_xarray()
         ds_mask = ds_mask.where(da_mask_full.mask == 1)
-        print(ds_mask)
 
         METEO_DIR = os.path.join(work_dir, 'data', 'meteo', '5km')
         ncs = glob(os.path.join(METEO_DIR, '*_fin.nc'))
@@ -84,19 +83,13 @@ def main():
             ('lat', 'lon'), ds_mask.mask.to_masked_array(copy=False))
         df = ds_meteo.where(ds_meteo.mask == 1, drop=True).compute(
         ).to_dataframe().dropna(axis=0, how="any")
-        print(df)
+
         df = df.reset_index()
-        df = df.loc[:, 'lat':'wind']
-        df.loc[0:len(df), 'lat':'lon'] = df.loc[0:len(
-            df), 'lat':'lon'].astype(np.float64).round(4)
-        df.loc[0:len(df), 'Surfpress':'wind'] = df.loc[0:len(df),
-                                                       'Surfpress':'wind'].astype(np.float64).round(4)
+        df.drop(['mask'], axis=1, inplace=True)
+        df.loc[:,"lat": "lon"] = df.loc[:,"lat": "lon"].apply(lambda x: np.float64(x).round(4))
+        df.loc[:,"Surfpress": "wind"] = df.loc[:,"Surfpress": "wind"].apply(lambda x: np.float64(x).round(1))
         df = format_df_meteo(df)
-        print(df)
-
-        # df.to_csv(os.path.join(EXP_DIR, 'meteo' + str(STEP_IDX) + '.csv'))
-
-        # DB_MI = os.path.join(work_dir, 'db', 'NEW', 'MasterInput.db')
+        print(df.head(5))
         print(DB_MI)
         with sqlite3.connect(DB_MI) as conn:
             cur = conn.cursor()

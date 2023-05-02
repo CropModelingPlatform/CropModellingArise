@@ -5,7 +5,6 @@ import sys
 import traceback
 from joblib import Parallel, delayed
 
-THREADS  = 3
 
 def merge(m):
     work_dir = '/work'
@@ -20,7 +19,9 @@ def merge(m):
         dss = list()
         for nc in ncss:
             dss.append(xr.open_dataset(nc))
-        ofin1 = os.path.join(work_dir,"outputs", m+'_yearly_'+n+'.nc')
+        outdir = os.path.join(work_dir,"outputs")
+        os.makedirs(outdir, exist_ok=True)
+        ofin1 = os.path.join(outdir, m+'_yearly_'+n+'.nc')
         xr.merge(dss).to_netcdf(ofin1)
     print("DONE!")
 
@@ -28,7 +29,7 @@ def main():
     try:
         print("merge_csv.py")
         models = ["stics","dssat","celsius"]
-        Parallel(n_jobs=THREADS, verbose=3, max_nbytes=None, prefer="processes")(
+        Parallel(n_jobs=-1)(
             delayed(merge)(f) for f in models)
     except:
         print("Unexpected error have been catched:", sys.exc_info()[0])

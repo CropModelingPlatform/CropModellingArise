@@ -8,7 +8,7 @@ import traceback
 import os
 import pandas as pd
 
-THREADS = 96
+THREADS = 46
 
 
 def call_calculate_etp(data):
@@ -38,8 +38,6 @@ def main():
         EXPS_DIR = os.path.join(work_dir, 'EXPS')
         EXP_DIR = os.path.join(EXPS_DIR, 'exp_' + str(i))
         DB_MI = os.path.join(EXP_DIR, 'MasterInput.db')
-        sqlite_connection = sqlite3.connect(DB_MI)
-        sqlite_cursor = sqlite_connection.cursor()
         
         sql1 = """ALTER TABLE RaClimateD
                 ADD COLUMN altitude FLOAT;
@@ -59,15 +57,9 @@ def main():
             cur.executescript(sql)
             conn.commit()
 
-        rows = sqlite_cursor.execute("select * from RaClimateD;").fetchall()
-        sqlite_connection.close()
-        
-        res = Parallel(n_jobs=THREADS, verbose=len(rows)-1, max_nbytes=None, prefer="processes")(
-                delayed(call_calculate_etp)(f) for f in rows)
-
         with sqlite3.connect(DB_MI, timeout=10) as conn:
             df = pd.read_sql('select * from RaClimateD', conn)
-            df["Etppm"] = res
+            df["Etppm"] = df.apply(lambda x: calculate_etp.ET0pm_Tdew(df["latitude"], df["altitude"], df["DOY"], df["tmin"], df["tmax"], df["tmoy"], df["Tdewmin"], df["Tdewmax"], df["wind"], df["srad"]), axis=1)
             cur = conn.cursor()
             cur.executescript("DROP TABLE RAclimateD;")
             conn.commit()

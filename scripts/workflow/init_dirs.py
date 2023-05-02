@@ -18,8 +18,8 @@ def main():
         i = args.index
         OUTPUT_DIR = os.path.join(work_dir, 'EXPS')
         outdir = os.path.join(OUTPUT_DIR, 'exp_' + str(i))
-
-        os.makedirs(outdir, exist_ok=True)
+        os.umask(0)
+        os.makedirs(outdir,mode=0o777, exist_ok=True)
         dbfrom = os.path.join(work_dir, 'db', 'MasterInput.db')
         dbto = os.path.join(outdir, 'MasterInput.db')
         res = subprocess.check_call(['cp',  dbfrom, dbto])
