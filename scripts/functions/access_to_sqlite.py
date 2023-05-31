@@ -2,6 +2,16 @@ import pyodbc
 import sqlite3
 from path import Path
 
+
+def decode_sketchy_utf16(raw_bytes):
+    s = raw_bytes.decode("utf-16le", "ignore")
+    try:
+        n = s.index('\u0000')
+        s = s[:n]  # respect null terminator
+    except ValueError:
+        pass
+    return s
+
 def convert_access_to_sqlite(path_to_access_db, path_to_sql_db):
     """
     Converts an Access database to a SQLite database.
