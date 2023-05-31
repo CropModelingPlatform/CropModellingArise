@@ -31,7 +31,7 @@ def main():
         sql_as_string = """INSERT INTO SimUnitList ( idOption, idPoint, idMangt, IdSoil, StartYear, StartDay, EndYear, EndDay, idIni, idsim )
         SELECT DISTINCT SimulationOptions.IdOptions, Coordinate_years.idPoint, CropManagement.idMangt, Soil.IdSoil, Coordinate_years.Year as StartYear, 100 AS StartDay, Coordinate_years.Year as EndYeary,360 as EndDay, 1 as IdIni, Coordinate_years.idpoint || '_' || Coordinate_years.year || '_' || CropManagement.idMangt || '_' || SimulationOptions.IdOptions AS ids
         FROM CropManagement, SimulationOptions, Soil INNER JOIN (Coordinate_years INNER JOIN RAClimateD ON Coordinate_years.idPoint = RAClimateD.idPoint) ON Soil.IdSoil = RAClimateD.idPoint
-        where CropManagement.idMangt='Fert160' ORDER BY  Coordinate_years.idPoint, CropManagement.idMangt, Soil.IdSoil, Coordinate_years.year, SimulationOptions.IdOptions;"""
+        ORDER BY  Coordinate_years.idPoint, CropManagement.idMangt, Soil.IdSoil, Coordinate_years.year, SimulationOptions.IdOptions;"""
 	
         #where CropManagement.idMangt='Fert80'and SimulationOptions.IdOptions=1
 

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#PBS -S /bin/bash
+#PBS -lselect=1:ncpus=3:mem=64gb
+#PBS -lwalltime=00:10:00
+#PBS -N NETCDF
+#PBS -V
+
+cd $PBS_O_WORKDIR
+
+date
+
+singularity exec --no-home -B /rds/general/user/cmidingo/ephemeral/CropModellingArise:/work -B /rds/general/user/cmidingo/ephemeral/tmp:$TMPDIR datamill.sif python3 /work/scripts/netcdf/merge_yearly.py
+
+date
+

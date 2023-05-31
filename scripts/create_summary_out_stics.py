@@ -16,7 +16,7 @@ from joblib import Parallel, delayed
 import re
 
 
-THREADS = 96
+THREADS = 46
 
 def get_coord(d):
     res = re.findall("([-]?\d+[.]\d+)[_]", d)
@@ -43,7 +43,7 @@ def create_df_summary(f):
     df.insert(0, "Model", "Stics")
     df.insert(1, "Idsim", d_name)
     df.insert(2, "Texte", "")
-    df['time'] = int(df['ansemis'])
+    df['time'] = df['ansemis'].astype(int)
     df['lon'] = c['lon']
     df['lat'] = c['lat']
     return df
@@ -62,7 +62,7 @@ def main():
         dbname = os.path.join(EXP_DIR, db)
         print('EXP_DIR : ' + EXP_DIR)
         files = glob(os.path.join(EXP_DIR, 'Stics', '*', 'mod_r*'))
-        res = Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        res = Parallel(n_jobs=-1)(
             delayed(create_df_summary)(f) for f in files)
         df = pd.concat(res)
         dffin = pd.concat(res)
@@ -79,7 +79,7 @@ def main():
             o = os.path.join(EXP_DIR, 'stics' + '_yearly_' + id_ + "_" + str(i) + '.nc')
             dsfin.to_netcdf(o)
         
-        Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        Parallel(n_jobs=-1)(
             delayed(create_netcdf)(f, dffin) for f in v)
         
         

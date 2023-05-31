@@ -16,7 +16,7 @@ from joblib import Parallel, delayed
 import re
 
 
-THREADS = 96
+THREADS = 46
 
 def get_lon(d):
     res_=d.split("_")
@@ -53,16 +53,19 @@ def main():
         sqlite_connection_mi = sqlite3.connect(dbname_mi)
         sqlite_connection_celsius = sqlite3.connect(dbname_celsius)
         df = pd.read_sql('SELECT * FROM OutputSynt', sqlite_connection_celsius)
+        sqlite_connection_celsius.close()
         df = df.reset_index().rename(columns={"idsim":"Idsim","iplt":"Planting","JulPheno1_1":"Emergence","JulPheno1_4":"Ant","JulPheno1_6":"Mat","Biom(nrec)":"Biom_ma","Grain(nrec)":"Yield","LAI":"MaxLai","SigmaSimEsol":"CumE","Ngrain":"GNumber","stockNsol":"SoilN","SigmaCultEsol":"Transp"})
         df["Model"] = "Celsius" 
-        df["Texte"] = ""     
-        
-        df["lon"] = Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        df["Texte"] = "" 
+        df['time'] = df.apply(lambda x: get_time(x['Idsim']), axis=1)    
+        df['lon'] = df.apply(lambda x: get_lon(x['Idsim']), axis=1)
+        df['lat'] = df.apply(lambda x: get_lat(x['Idsim']), axis=1)
+        """df["lon"] = Parallel(n_jobs=-1)(
             delayed(get_lon)(f) for f in df["Idsim"])
-        df["lat"] = Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        df["lat"] = Parallel(n_jobs=-1)(
             delayed(get_lat)(f) for f in df["Idsim"])
-        df["time"] = Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
-            delayed(get_time)(f) for f in df["Idsim"])
+        df["time"] = Parallel(n_jobs=-1)(
+            delayed(get_time)(f) for f in df["Idsim"])"""
         
         v = list(set(["_".join(u.split("_")[3:]) for u in df["Idsim"]]))
         
@@ -76,7 +79,7 @@ def main():
             o = os.path.join(EXP_DIR, 'celsius' + '_yearly_' + id_ + "_" + str(i) + '.nc')
             dsfin.to_netcdf(o)
         
-        Parallel(n_jobs=THREADS, verbose=100, max_nbytes=None, prefer="processes")(
+        Parallel(n_jobs=-1)(
             delayed(create_netcdf)(f, df) for f in v)
             
         df = df[["Model","Idsim","Texte","Planting","Emergence","Ant","Mat","Biom_ma","Yield","GNumber","MaxLai","SoilN","CumE","Transp"]]
