@@ -2,7 +2,7 @@ import pyodbc
 import sqlite3
 from path import Path
 
-def convert(path_to_access_db, path_to_sql_db):
+def convert_access_to_sqlite(path_to_access_db, path_to_sql_db):
     """
     Converts an Access database to a SQLite database.
     """
@@ -13,15 +13,24 @@ def convert(path_to_access_db, path_to_sql_db):
     # Make mdb connections
     constr = "DRIVER={{Microsoft Access Driver (*.mdb, *.accdb)}};DBQ={0};".format(Path(path_to_access_db))
     access_conn = pyodbc.connect(constr, autocommit=False)
+    
+    
+    prev_converter = access_conn.get_output_converter(pyodbc.SQL_WVARCHAR)
+    access_conn.add_output_converter(pyodbc.SQL_WVARCHAR, decode_sketchy_utf16)
+
     cursor = access_conn.cursor()
+    
     tables = [table_info.table_name for table_info in cursor.tables(tableType='TABLE')]
  
     for table in tables:
         # Access databases, have several internal tables. They all start with the
         # "MSys" prefix. If you need them, just remove the if clause.
         if not table.startswith("MSys"):
+            print(table)
             ## Create tables
             columns = [column for column in cursor.columns(table=table)]
+            access_conn.add_output_converter(pyodbc.SQL_WVARCHAR, prev_converter)
+
             s = []
 
             for column in columns:

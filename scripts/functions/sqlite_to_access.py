@@ -13,7 +13,7 @@ types = {"smallint":"Number", "float":"Number", "double":"Number", "bit":"bit", 
 
 
 
-def convert(path_to_access_db, path_to_sql_db):
+def convert_sqlite_to_access(path_to_access_db, path_to_sql_db):
     """
     Converts a Sqlite database to an Access database.
     """
@@ -76,6 +76,15 @@ def convert(path_to_access_db, path_to_sql_db):
         sqlite_connection.close()
         connection.close()
         cur.close()
+        
+        # split the file path into the basename and extension
+        #basename, extension = os.path.splitext(path_to_access_db)
+        
+        # create a new file path with the new extension
+        #new_file_path = basename + '.accdb'
+        
+        # rename the file with the new extension
+        #os.rename(path_to_access_db, new_file_path)
         
     except sqlite3.Error as e:
         print(f"Error occured: {e}")
