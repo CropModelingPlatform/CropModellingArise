@@ -230,13 +230,13 @@ Data within $RDS/ephemeral/ is unquotaed but will be DELETED 30 DAYS AFTER CREAT
 
    - Launch `datamill.pbs` in the cluster from the CropModellingAriseTest repository. Please, follow the instructions in `section 4`. (The repository is now CropModellingAriseTest instead of CropModellingArise)
    - Create in your computer a folder `e.g: RESULT` where you copy the `MasterInput.db` in the `EXPS\exp_1`folder.
-   - Convert the `MasterInput.db` into access format. The result will be `MasterInput.mdb`. Please, change the format in `accdb`
+   - Convert the `MasterInput.db` into access format using the function `convert_sqlite_to_access` in `script\fucntions\sqlite_to_access.py`. The result will be `MasterInput.mdb`. Please, change the format in `accdb`
    - Please duplicate the MasterInput.accdb and named them MasterInput.accdb and `MasterInput_clust.accdb`.
    - Empty the `SummaryOutput` table in MasterInput.accdb
    - Empty Dweather, OutputSynt, Soil, ListPAnnexes, SimunitList, SummaryOutput tables in CelsiusV3nov17_dataArise.accdb
    - Launch Datamill windows and run the three models. Please use the ModelDictionnay.accdb, CelsiusV3nov17_dataArise.accdb, maiplt.txt, stics_modulo.exe provided in `test folder` in this github repositoory. The version of dssat is 4.7 and use the cultivar file in `data\dssat\genotype`
    - Rename masterInput as `MasterInput_win.accdb`
-   - At the end, call compare_clust_win method in scripts\functions. It takes as inputs the path of `MasterInput_clust.accdb` and `MasterInput_win.accdb`
+   - At the end, call  `compare_results` function in `scripts\functions\compare_clust_win.py`. It takes as inputs the path of `MasterInput_clust.accdb` and `MasterInput_win.accdb`
    - The result should be [as this](test/plot.pdf)
 
-
+!!!Attention: mAke sure that in the path of your directory or file there is no space (no space in the name of folder)
