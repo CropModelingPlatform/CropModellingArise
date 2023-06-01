@@ -9,10 +9,12 @@ import pyodbc
 import pandas as pd
 from path import Path
 import matplotlib.pyplot as plt
+import os
 
 
 
-def compare_results(path_to_clust_db, path_to_win_db):
+def compare_results(path_to_clust_db, path_to_win_db, plot_rep):
+    
 
     constr1 = "DRIVER={{Microsoft Access Driver (*.mdb, *.accdb)}};DBQ={0};".format(Path(path_to_clust_db))
     conn1= pyodbc.connect(constr1, autocommit=False)
@@ -40,23 +42,34 @@ def compare_results(path_to_clust_db, path_to_win_db):
     
     merged_df = pd.merge(df1, df2, on=['Model','Idsim'])
     
+    grouped = merged_df.groupby('Model')
     
-    merged_df[['lat', 'lon', 'year', 'Fert', "option"]] = merged_df['Idsim'].str.split("_", expand=True)
-    merged_df["IdClim"] = merged_df["lat"]+"_"+ merged_df["lon"]
+    models = list(merged_df["Model"].unique())
+    var = ["Yield", "Biom_ma", "MaxLAI", "SoilN", "Nleac", "Cron_ma", "Transp", "CumE"]
+    # Tracer les graphes pour chaque modèle et chaque variable
+    fig, axs = plt.subplots(nrows=len(var), ncols=len(models), figsize=(10, 15)) #•10 15
+    axs = axs.flatten()
+    k = 0
+    for var_index, var_name in enumerate(var):
+        colors = ['r', 'g', 'b', 'y', 'c']
+        for i, (name, group) in enumerate(grouped):
+            color = colors[i]
+            i = i + k
+            axs[i].plot(group[var_name+'_x'], group[var_name+'_y'], label=var_name, color=color)
+            axs[i].set_xlabel('cluster')
+            axs[i].set_ylabel('windows')
+            axs[i].set_title(name)
+            axs[i].legend()
+            plt.subplots_adjust(wspace=0.5, hspace=0.3)
+        k = k +len(models)
     
-    merged_df["diff"] = merged_df["SoilN_x"]-merged_df["SoilN_y"]
-    
-    merged_df["diff"].sum()
-    
+    fig.tight_layout()
 
-    # Création du graphe
-    plt.plot(merged_df["SoilN_x"], merged_df["SoilN_y"])
-    plt.xlabel('SoilN_clust')
-    plt.ylabel('SoilN_win')
-    plt.title('Graphe SoilN_clust en fonction de SoilN_win')
-    plt.legend()
-    plt.show()
+    # Enregistrer le plot dans un fichier PDF
+    plt.savefig(os.path.join(plot_rep, 'plot.pdf'))
     
+    # Afficher le plot
+    plt.show()
 
 
 

@@ -47,12 +47,11 @@ The required subdirectories to launch execution are :
 `/db` includes the MasterInput.db databases with ModelsDictonaryArise.db and the Celsius databasis CelsiusV3nov17_dataArise.db  
 `/scripts` list of the scripts called by the main script `main.sh`
 
-On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provided with the container file `datamill.sif` (these files must be located near to the subdirectories data, db, scripts).
+On Imperial College, the PBS job scheduler is used, so a launching script `datamill.pbs` must be provided with the container file `datamill.sif` (these files must be located in the folder that contains the subdirectories data, db and scripts).
 
 
-## 3 - Launching the workflow on a HPC computer
+## 3 - Overview of the implementation of the main file
 
-### Principle 
 
 The launch of the workflow on further nodes is performed with the PBS script `datamill.pbs` which uses a Singularity container `datamill.sif`.
 
@@ -61,7 +60,7 @@ The PBS `datamill.pbs` file is the following :
 ```
 #!/bin/bash
   
-#PBS -J 0-49:1
+#PBS -J 0-87:1
 #PBS -S /bin/bash
 #PBS -lselect=1:ncpus=48:mem=64gb
 #PBS -lwalltime=20:00:00
@@ -87,35 +86,35 @@ This `main.sh` script triggers the following actions. All the scripts called in 
 
 Here, we described the main instructions in `main.sh` script that will be execute to address the model simulations.
 
-**3.1. Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to 50 directories 'EXPS' :**
+**3.1. Create subdirectories 'EXPS' and copy of MasterInput, this step must lead to `n` directories 'EXP_k' (k: 0..n-1 with n the length of the jobs arrray). In this configuration n = 88 :**
 
 ```
 python3 ${DATAMILL_WORK}/scripts/workflow/init_dirs.py --index $i;
   wait
 ```
 
-**3.2. Load Soil data in MasterInput database :**
+**3.2. Load Soil data in MasterInput database in each EXP_k folder:**
 
 ```  
   python3 ${DATAMILL_WORK}/scripts/netcdf/soil_to_db.py --index $i;
   wait 
 ```
 
-**3.3. Load climate data  in MasterInput - Higly time consuming, activate when necessary :**
+**3.3. Load climate data  in each MasterInput according to the selected pixels of each job  :**
 
 ```
 python3 ${DATAMILL_WORK}/scripts/netcdf/meteo_to_db.py --index $i;
 wait
 ```
 
-**3.4. Load DEM data in MasterInput :**
+**3.4. Load DEM data in each MasterInput :**
 
 ```
   python3 ${DATAMILL_WORK}/scripts/netcdf/dem_to_db.py --index $i;
   wait
 ```
 
-**3.5. Create simunitlist with global parameters of the simulation : soil, dates, ITK (ex: fert0, fert160...) :**
+**3.5. Create simunitlist with global parameters of the simulation : soil, dates, ITK :**
 ```
   python3 ${DATAMILL_WORK}/scripts/workflow/init_simunitlist.py --index $i;
   wait
@@ -146,16 +145,16 @@ wait
 ```
 
 
-### Process to launch the workflow
+## 4 - Launching the workflow on a HPC computer
 
 
   **After connecting to the HPC through WINSCP, copy the `CropModellingArise repository` from `/rds/general/project/arise/live` to /rds/general/user/`$user`/ephemeral/`   Replace `$user` by your username**
   
   **Create into /rds/general/user/`$user`/ephemeral/ the temporary folder `tmp`**
 
-  **Open and Change in the `datamill.pbs` and `merge.pbs` files the username in order to have the right path to access `tmp` and `CropModellingArise`, here `cmidingo`**
+  **Open and modify the username in the `datamill.pbs` and `merge.pbs` files  in order to have the right path to access `tmp` and `CropModellingArise`. In the current files, the username is `cmidingo`**
 
-  **After connecting with Putty, write:**
+  **After connecting with Putty, write (modify `$user` with `your user name` ):**
 
 ```
   cd  /rds/general/user/`$user`/ephemeral/CropModellingArise
@@ -220,5 +219,24 @@ Please save your repository on your local computer
 Do not store sensitive or personally-identifiable data in Ephemeral.
 
 Data within $RDS/ephemeral/ is unquotaed but will be DELETED 30 DAYS AFTER CREATION.
+
+
+
+## 5 - Verification between Datamill windows and Cluster
+
+  To ensure the equivalence of the results between DataMill Windows and Cluster, a test dataset has been provided and is located in the `test` folder. Therefore, a directory named `CropModellingAriseTest` has been created in the cluster, which contains the code to perform the tests with this dataset.
+  
+  ### Verification process
+
+   - Launch `datamill.pbs` in the cluster from the CropModellingAriseTest repository. Please, follow the instructions in `section 4`. (The repository is now CropModellingAriseTest instead of CropModellingArise)
+   - Create in your computer a folder `e.g: RESULT` where you copy the `MasterInput.db` in the `EXPS\exp_1`folder.
+   - Convert the `MasterInput.db` into access format. The result will be `MasterInput.mdb`. Please, change the format in `accdb`
+   - Please duplicate the MasterInput.accdb and named them MasterInput.accdb and `MasterInput_clust.accdb`.
+   - Empty the `SummaryOutput` table in MasterInput.accdb
+   - Empty Dweather, OutputSynt, Soil, ListPAnnexes, SimunitList, SummaryOutput tables in CelsiusV3nov17_dataArise.accdb
+   - Launch Datamill windows and run the three models. Please use the ModelDictionnay.accdb, CelsiusV3nov17_dataArise.accdb, maiplt.txt, stics_modulo.exe provided in `test folder` in this github repositoory. The version of dssat is 4.7 and use the cultivar file in `data\dssat\genotype`
+   - Rename masterInput as `MasterInput_win.accdb`
+   - At the end, call compare_clust_win method in scripts\functions. It takes as inputs the path of `MasterInput_clust.accdb` and `MasterInput_win.accdb`
+   - The result should be [as this](test/plot.pdf)
 
 
