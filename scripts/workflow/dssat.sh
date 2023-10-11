@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 export THREADS=46
-export INDEXES=($PBS_ARRAY_INDEX)
+export INDEXES=($SLURM_ARRAY_TASK_ID)
+
 
 if [[ -z "$DATAMILL_WORK" ]]; then
   export DATAMILL_WORK='/work'
@@ -32,8 +33,9 @@ wait
 rm -Rf $DIR_EXP/DonneesFA
 wait
 
-EXPS=$(find "${DIR_EXP}/Dssat" -type d -name "*_*"  2> /dev/null)
-wait
+echo "add genotype dssat"
+python3 ${DATAMILL_WORK}/scripts/genotype_dssat.py --dbmi ${DB_MI} --index $DIR_EXP/Dssat;
+wait 
 
 cd ${DATAMILL_WORK}/scripts
 ./dssat-main.bash -v -k -i $DIR_EXP/Dssat -t ${THREADS}

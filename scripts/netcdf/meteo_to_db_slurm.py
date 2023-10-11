@@ -7,7 +7,6 @@ from glob import glob
 import numpy as np
 import argparse
 import sys
-import pandas as pd
 import traceback
 
 METEO_COLS = ['idPoint', 'w_date', 'year', 'DOY', 'Nmonth', 'NdayM', 'srad', 'tmax', 'tmin', 'tmoy', 'rain',
@@ -28,23 +27,12 @@ def format_df_meteo(df):
     df = df[METEO_COLS]
     return df
 
-def apply_mask(ds_meteo, ds_mask):
-    ds_meteo = ds_meteo.reindex({'lat': sorted(ds_meteo.lat)})
-    ds_meteo.coords['mask'] = (
-            ('lat', 'lon'), ds_mask.mask.to_masked_array(copy=False))
-    df = ds_meteo.where(ds_meteo.mask == 1, drop=True).compute(
-        ).to_dataframe().dropna(axis=0, how="any")
-    df = df.reset_index()
-    df.drop(['mask'], axis=1, inplace=True)
-    return df
-
-
 
 def main():
     try:
         print("meteo_to_db.py")
+        # work_dir = os.getcwd()
         work_dir = '/work'
-        data_dir = '/inputData'
         parser = argparse.ArgumentParser(
             description='load soil data into database')
         parser.add_argument(
@@ -55,21 +43,18 @@ def main():
         EXP_DIR = os.path.join(EXPS_DIR, 'exp_' + str(i))
         DB_MI = os.path.join(EXP_DIR, 'MasterInput.db')
 
-        ds_mask = xr.open_dataset(glob(os.path.join(data_dir,'land', '*.nc'))[0])
+        ds_mask = xr.open_dataset(os.path.join(
+            work_dir, 'data', 'land', 'GFSAD1KCM_senegal_5km_fin.nc'))
         ds_mask = ds_mask.reindex({'lat': sorted(ds_mask.lat)})
         df_mask_full = ds_mask.to_dataframe()
-
-        df_mask_full = df_mask_full.reorder_levels(['lat', 'lon'])
-        df_mask_full = df_mask_full.sort_index(level='lat')
-
         df_mask = df_mask_full.dropna(axis=0, how="any")
+    
         df_mask = df_mask.reset_index()
+        df_mask.columns = ['lat', 'lon', 'mask']
+        df_mask = df_mask.set_index(['lat', 'lon'])
 
-        print(len(df_mask))
-
-        #SLURM_ARRAY_TASK_COUNT = int(os.environ.get("SLURM_ARRAY_TASK_COUNT"))
-        #STEP_N = SLURM_ARRAY_TASK_COUNT - 1
-        STEP_N = 4000
+        STEP_N = int(os.environ.get("SLURM_ARRAY_TASK_COUNT"))
+        #STEP_N = 87
         STEP_IDX = int(i)
         DF_LEN = len(df_mask)
         STEP_SIZE = int(DF_LEN/STEP_N)
@@ -83,11 +68,10 @@ def main():
         print("STEP_END : " + str(STEP_END))
         print("END - START : " + str(STEP_END - STEP_START))
        
-        df_mask.loc[~df_mask.index.isin(range(STEP_START, STEP_END)), 'mask'] = None
+        df_mask.iloc[0:STEP_START, :] = None
+        df_mask.iloc[STEP_END:, :] = None
 
         df_mask = df_mask.dropna(axis=0, how="any")
-        df_mask = df_mask.set_index(['lat', 'lon'])
-
         da_mask_full = df_mask_full.where(
             df_mask_full.isin(df_mask)).to_xarray()
         ds_mask = ds_mask.where(da_mask_full.mask == 1)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export THREADS=46
-export INDEXES=($PBS_ARRAY_INDEX)
+export INDEXES=($SLURM_ARRAY_TASK_ID)
 
 
 if [[ -z "$DATAMILL_WORK" ]]; then

@@ -92,6 +92,11 @@ def main():
         df.reset_index()
         print("DONE!")
         df = df[["Model","Idsim","Texte","Planting","Emergence","Ant","Mat","Biom_ma","Yield","GNumber","MaxLai","Nleac","SoilN","CroN_ma","CumE","Transp"]]
+        df["Planting"] =  df["Planting"].astype(float).astype(int) 
+        df["Ant"] = df["Ant"].astype(float).astype(int) 
+        df["Mat"] = df["Mat"].astype(float).astype(int)
+        df["Emergence"] = df["Emergence"].astype(float).astype(int)        
+        
         with sqlite3.connect(dbname, timeout=15) as c:
             cur = c.cursor()
             cur.execute("DELETE FROM SummaryOutput WHERE Model='Dssat';")

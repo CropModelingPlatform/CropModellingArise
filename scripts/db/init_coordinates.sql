@@ -1,6 +1,6 @@
 DELETE FROM Coordinates;
 INSERT INTO Coordinates
-SELECT DemTemp.dem_average as altitude,
+SELECT CAST(DemTemp.dem_average AS INTEGER) as altitude,
 DemTemp.lat as latitudeDD,
 DemTemp.lon as longitudeDD,
 '' as codeSWstation,

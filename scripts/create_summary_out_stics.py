@@ -43,7 +43,7 @@ def create_df_summary(f):
     df.insert(0, "Model", "Stics")
     df.insert(1, "Idsim", d_name)
     df.insert(2, "Texte", "")
-    df['time'] = df['ansemis'].astype(int)
+    df['time'] = df['ansemis'].astype(float).astype(int)
     df['lon'] = c['lon']
     df['lat'] = c['lat']
     return df
@@ -65,6 +65,8 @@ def main():
         res = Parallel(n_jobs=-1)(
             delayed(create_df_summary)(f) for f in files)
         df = pd.concat(res)
+        
+        print("stics",df["time"])
         dffin = pd.concat(res)
         
         v = list(set(["_".join(u.split("_")[3:]) for u in df["Idsim"]]))
@@ -86,11 +88,17 @@ def main():
         df.reset_index()
         print("DONE!")
         df = df[["Model","Idsim","Texte","Planting","Emergence","Ant","Mat","Biom_ma","Yield","GNumber","MaxLai","Nleac","SoilN","CroN_ma","CumE","Transp"]]
+        
+        df["Planting"] =  df["Planting"].astype(float).astype(int) 
+        df["Ant"] = df["Ant"].astype(float).astype(int) 
+        df["Mat"] = df["Mat"].astype(float).astype(int)
+        df["Emergence"] = df["Emergence"].astype(float).astype(int)
+        
         with sqlite3.connect(dbname, timeout=15) as c:
             cur = c.cursor()
             cur.executescript("DELETE FROM SummaryOutput WHERE Model='Stics';")
             c.commit()
-            df.to_sql('SummaryOutput', c, if_exists='replace', index=False)
+            df.to_sql('SummaryOutput', c, if_exists='append', index=False)
             c.commit()
 
     except:

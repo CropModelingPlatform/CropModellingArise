@@ -8,25 +8,9 @@ import traceback
 import os
 import pandas as pd
 
-THREADS = 46
 
 
-def call_calculate_etp(data):
 
-    # data : lat, Alt, J, Tn, Tx, Tm, Tdewn, Tdewx, Vm, Rg
-    Alt = data[17]
-    lat = data[18]
-    J = data[3]
-    Tn = data[8]
-    Tx = data[7]
-    Tm = data[9]
-    Tdewn = data[14]
-    Tdewx = data[15]
-    Vm = data[11]
-    Rg = data[6]
-    res = calculate_etp.ET0pm_Tdew(lat, Alt, J, Tn, Tx, Tm, Tdewn, Tdewx, Vm, Rg)
-    return res
-    
 
 def main():
     try:
@@ -59,7 +43,7 @@ def main():
 
         with sqlite3.connect(DB_MI, timeout=10) as conn:
             df = pd.read_sql('select * from RaClimateD', conn)
-            df["Etppm"] = df.apply(lambda x: calculate_etp.ET0pm_Tdew(df["latitude"], df["altitude"], df["DOY"], df["tmin"], df["tmax"], df["tmoy"], df["Tdewmin"], df["Tdewmax"], df["wind"], df["srad"]), axis=1)
+            df["Etppm"] = df.apply(lambda x: calculate_etp.ET0pm_Tdew(x["latitude"], x["altitude"], x["DOY"], x["tmin"], x["tmax"], x["tmoy"], x["Tdewmin"], x["Tdewmax"], x["wind"], x["srad"]), axis=1)
             cur = conn.cursor()
             cur.executescript("DROP TABLE RAclimateD;")
             conn.commit()

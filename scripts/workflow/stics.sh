@@ -1,21 +1,12 @@
 #!/usr/bin/env bash
 
 export THREADS=46
-export INDEXES=($PBS_ARRAY_INDEX)
-
-export STICS_PLANT=maiplt.txt
-
+export INDEXES=($SLURM_ARRAY_TASK_ID)
 
 
 if [[ -z "$DATAMILL_WORK" ]]; then
   export DATAMILL_WORK='/work'
 fi
-
-conf_stics (){
-  cp "$DATAMILL_WORK/data/$STICS_PLANT" "$1/ficplt1.txt"
-  wait
-}
-export -f conf_stics
 
 echo "INDEXES : $INDEXES"
 
@@ -42,10 +33,8 @@ wait
 rm -Rf $DIR_EXP/DonneesFA
 wait
 
-EXPS=$(find "${DIR_EXP}/Stics" -type d -name "*_*"  2> /dev/null)
-wait
-printf "${EXPS//" "/\\n}" | xargs -n1 -P${THREADS} -I{} \
-    bash -c "conf_stics {}"
+echo "add genotype stics"
+python3 ${DATAMILL_WORK}/scripts/genotype_stics.py --dbmi ${DB_MI} --index $DIR_EXP/Stics;
 wait
 
 cd ${DATAMILL_WORK}/scripts
@@ -54,11 +43,8 @@ cd ${DATAMILL_WORK}
 wait
 
 
-  #python3 ${DATAMILL_WORK}/scripts/netcdf/stics_to_netcdf.py --index $i;
-  #wait
-
 python3 ${DATAMILL_WORK}/scripts/create_summary_out_stics.py --index $i;
 wait
 
-rm -Rf $DIR_EXP/Stics
+#rm -Rf $DIR_EXP/Stics
 wait

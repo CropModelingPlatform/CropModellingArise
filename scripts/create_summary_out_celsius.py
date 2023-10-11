@@ -53,19 +53,13 @@ def main():
         sqlite_connection_mi = sqlite3.connect(dbname_mi)
         sqlite_connection_celsius = sqlite3.connect(dbname_celsius)
         df = pd.read_sql('SELECT * FROM OutputSynt', sqlite_connection_celsius)
-        sqlite_connection_celsius.close()
         df = df.reset_index().rename(columns={"idsim":"Idsim","iplt":"Planting","JulPheno1_1":"Emergence","JulPheno1_4":"Ant","JulPheno1_6":"Mat","Biom(nrec)":"Biom_ma","Grain(nrec)":"Yield","LAI":"MaxLai","SigmaSimEsol":"CumE","Ngrain":"GNumber","stockNsol":"SoilN","SigmaCultEsol":"Transp"})
         df["Model"] = "Celsius" 
-        df["Texte"] = "" 
-        df['time'] = df.apply(lambda x: get_time(x['Idsim']), axis=1)    
+        df["Texte"] = ""     
+        
+        df['time'] = df.apply(lambda x: get_time(x['Idsim']), axis=1)
         df['lon'] = df.apply(lambda x: get_lon(x['Idsim']), axis=1)
         df['lat'] = df.apply(lambda x: get_lat(x['Idsim']), axis=1)
-        """df["lon"] = Parallel(n_jobs=-1)(
-            delayed(get_lon)(f) for f in df["Idsim"])
-        df["lat"] = Parallel(n_jobs=-1)(
-            delayed(get_lat)(f) for f in df["Idsim"])
-        df["time"] = Parallel(n_jobs=-1)(
-            delayed(get_time)(f) for f in df["Idsim"])"""
         
         v = list(set(["_".join(u.split("_")[3:]) for u in df["Idsim"]]))
         
@@ -83,11 +77,16 @@ def main():
             delayed(create_netcdf)(f, df) for f in v)
             
         df = df[["Model","Idsim","Texte","Planting","Emergence","Ant","Mat","Biom_ma","Yield","GNumber","MaxLai","SoilN","CumE","Transp"]]
+        df["Planting"] =  df["Planting"].astype(float).astype(int) 
+        df["Ant"] = df["Ant"].astype(float).astype(int) 
+        df["Mat"] = df["Mat"].astype(float).astype(int)
+        df["Emergence"] = df["Emergence"].astype(float).astype(int)        
+        
         with sqlite3.connect(dbname_mi, timeout=10) as c:
             cur = c.cursor()
-            cur.executescript("Delete from SummaryOutput;")
+            cur.execute("DELETE FROM SummaryOutput WHERE Model='Celsius';")
             c.commit()
-            df.to_sql('SummaryOutput', c, if_exists='replace', index=False)
+            df.to_sql('SummaryOutput', c, if_exists='append', index=False)
             c.commit()
 
 
