@@ -1,4 +1,4 @@
-# A workflow for HPC crop simulations (STIC, DSSAT, CELSIUS) using Datamill databasis
+# A workflow for HPC crop simulations (STIC, DSSAT, CELSIUS) using Datamill database
 
 Imperial College provides research computing resources for all College researchers, with the standard service for these being free at the point of use.
 You must be registered in order to access the HPC service. The steps for registration are described [here](https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/get-access/) 
